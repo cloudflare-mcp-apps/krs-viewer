@@ -1,0 +1,69 @@
+{
+  "name": "krs-viewer",
+  "version": "1.0.0",
+  "description": "KRS Company Viewer - Polish company registry lookup with visual card display",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wtyczki-ai/krs-viewer.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cloudflare-workers",
+    "mcp-apps",
+    "sep-1865",
+    "krs",
+    "poland",
+    "company-registry"
+  ],
+  "overrides": {
+    "iron-session": {
+      "cookie": "^0.7.0"
+    }
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:widget": "cross-env INPUT=widgets/company-card.html vite build --watch",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:widget\"",
+    "build:widget:company-card": "cross-env INPUT=widgets/company-card.html vite build",
+    "build:widgets": "npm run build:widget:company-card",
+    "watch": "cross-env INPUT=widgets/company-card.html vite build --watch",
+    "watch:widgets": "npm run watch",
+    "deploy": "npm run build:widgets && wrangler deploy",
+    "type-check": "tsc --noEmit",
+    "pre-commit": "npm run type-check && npm run build:widgets",
+    "verify-all": "npm run pre-commit",
+    "cf-typegen": "wrangler types"
+  },
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "^0.1.0",
+    "@modelcontextprotocol/ext-apps": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.25.1",
+    "@workos-inc/node": "^7.77.0",
+    "agents": "^0.2.30",
+    "clsx": "^2.1.1",
+    "hono": "^4.10.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.6",
+    "vite-plugin-singlefile": "^2.0.3",
+    "wrangler": "^4.45.3"
+  }
+}

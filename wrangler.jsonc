@@ -1,0 +1,178 @@
+/**
+ * Cloudflare Workers Configuration for {{SERVER_NAME}} MCP Server
+ *
+ * Architecture: Resource Server with Shared D1 Database
+ * - Shared D1 database (mcp-oauth) for user and API key validation
+ * - OAuth flow via WorkOS AuthKit
+ * - Durable Objects for MCP protocol handling
+ *
+ * CUSTOMIZATION CHECKLIST:
+ * ========================
+ * REQUIRED CHANGES (search for {{PLACEHOLDERS}}):
+ *   1. "name": Change {{SERVER_ID}} to your server's kebab-case name (e.g., "weather-mcp")
+ *   2. "new_sqlite_classes": Change {{McpAgentClassName}} to your class name (e.g., "WeatherMcp")
+ *   3. "class_name": Change {{McpAgentClassName}} to match above
+ *   4. "routes.pattern": Change {{SERVER_ID}} to your subdomain (e.g., "weather.wtyczki.ai")
+ *
+ * SHARED INFRASTRUCTURE (✅ PRE-FILLED - DO NOT CHANGE):
+ *   - All KV namespace IDs (OAUTH_KV, USER_SESSIONS, CACHE_KV)
+ *   - D1 database ID (mcp-oauth)
+ *   - These are shared across all MCP servers for centralized auth
+ *
+ * OPTIONAL ADDITIONS:
+ *   - Uncomment AI binding if you need Workers AI
+ *   - Uncomment R2 binding if you need file storage
+ *   - Uncomment Browser binding if you need browser rendering
+ *   - Adjust vars.AI_GATEWAY_ID if you need a different gateway
+ *
+ * For more details on Wrangler configuration:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "krs-viewer",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+
+  /**
+   * Build command for GitHub -> Cloudflare deployment
+   * Builds widgets BEFORE TypeScript compilation
+   */
+  "build": {
+    "command": "npm install && npm run build:widgets && npx tsc --noEmit"
+  },
+
+  /**
+   * Assets binding for MCP Apps widget delivery
+   */
+  "assets": {
+    "directory": "./web/dist/widgets",
+    "binding": "ASSETS"
+  },
+
+  /**
+   * CRITICAL: Migrations for Durable Objects
+   *
+   * McpAgent ALWAYS requires Durable Objects configuration, even for "stateless" servers.
+   * The DO is used for MCP protocol handling, WebSocket management, and session state.
+   *
+   * When you rename your McpAgent class, update "new_sqlite_classes"
+   */
+  "migrations": [
+    {
+      "new_sqlite_classes": ["KrsViewer"],
+      "tag": "v1"
+    }
+  ],
+
+  /**
+   * REQUIRED: Durable Object binding
+   */
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "KrsViewer",
+        "name": "MCP_OBJECT"
+      }
+    ]
+  },
+
+  /**
+   * REQUIRED for OAuth: Shared KV namespaces
+   *
+   * IMPORTANT: Use IDs from CLOUDFLARE_CONFIG.md - DO NOT create new namespaces!
+   * All MCP servers share the same KV namespaces for OAuth and caching.
+   */
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_KV",
+      "id": "b77ec4c7e96043fab0c466a978c2f186",
+      "preview_id": "cf8ef9f38ab24ae583d20dd4e973810c"
+    },
+    {
+      "binding": "CACHE_KV",
+      "id": "fa6ff790f146478e85ea77ae4a5caa4b",
+      "preview_id": "4b37112559f2429191633d98781645ca"
+    },
+    {
+      "binding": "USER_SESSIONS",
+      "id": "e5ad189139cd44f38ba0224c3d596c73",
+      "preview_id": "49c43fb4d6e242db87fd885ba46b5a1d"
+    }
+  ],
+
+  /**
+   * REQUIRED for API key management: Shared D1 database
+   */
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mcp-oauth",
+      "database_id": "eac93639-d58e-4777-82e9-f1e28113d5b2"
+    }
+  ],
+
+  /**
+   * OPTIONAL: Workers AI binding for AI models
+   * Uncomment if you need to use Workers AI:
+   */
+  // "ai": {
+  //   "binding": "AI"
+  // },
+
+  /**
+   * OPTIONAL: R2 bucket binding for file storage
+   * Uncomment and configure if you need R2:
+   */
+  // "r2_buckets": [
+  //   {
+  //     "binding": "MY_BUCKET",
+  //     "bucket_name": "your-bucket-name"
+  //   }
+  // ],
+
+  /**
+   * OPTIONAL: Browser Rendering binding for headless browser
+   * Uncomment if you need to render pages (e.g., screenshots, web scraping):
+   */
+  // "browser": {
+  //   "binding": "BROWSER"
+  // },
+
+  /**
+   * REQUIRED: Custom Domain for production deployment
+   */
+  "routes": [
+    {
+      "pattern": "krs-viewer.wtyczki.ai",
+      "custom_domain": true
+    }
+  ],
+
+  /**
+   * SECURITY: Disable workers.dev subdomain (RECOMMENDED)
+   */
+  "workers_dev": false,
+
+  /**
+   * RECOMMENDED: Enable observability for debugging
+   */
+  "observability": {
+    "enabled": true
+  },
+
+  /**
+   * OPTIONAL: Local development port
+   */
+  "dev": {
+    "port": 8787
+  },
+
+  /**
+   * REQUIRED: Cloudflare AI Gateway configuration
+   */
+  "vars": {
+    "AI_GATEWAY_ID": "mcp-production-gateway"
+  }
+}

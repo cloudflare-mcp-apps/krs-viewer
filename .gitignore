@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.wrangler/
+
+# Environment variables (local secrets)
+.dev.vars
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Test output
+coverage/
