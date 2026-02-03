@@ -2,7 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root {
+/* Box-sizing reset - prevents padding from adding to width */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -11,9 +20,9 @@ html, body, #root {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -38,6 +47,9 @@ body {
   --input: 214.3 31.8% 91.4%;
   --ring: 222.2 84% 4.9%;
   --radius: 0.5rem;
+
+  /* Focus ring color */
+  --color-focus: hsl(222.2 84% 4.9%);
 }
 
 .dark {
@@ -58,4 +70,173 @@ body {
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
   --ring: 212.7 26.8% 83.9%;
+
+  /* Focus ring color for dark mode */
+  --color-focus: hsl(210 40% 98%);
+}
+
+/* ============================================
+   ACCESSIBILITY: Focus Indicators
+   ============================================ */
+
+/* Global focus indicator for interactive elements */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Button focus states */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+/* Link focus states */
+a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Input focus states */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Card focus when tabbed to (for scrollable content) */
+[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Remove default outline since we're adding custom focus styles */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   ACCESSIBILITY: Motion Reduction
+   ============================================ */
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable spinner animation */
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
+/* Animations only for users without motion preference */
+@media (prefers-reduced-motion: no-preference) {
+  /* Smooth scrolling for users without motion sensitivity */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Transition for interactive elements */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    transition: background-color 0.15s ease, border-color 0.15s ease,
+      box-shadow 0.15s ease, color 0.15s ease;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY: High Contrast Mode
+   ============================================ */
+
+@media (prefers-contrast: more) {
+  :root {
+    --border: 0 0% 20%;
+  }
+
+  .dark {
+    --border: 0 0% 80%;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    border-width: 2px;
+  }
+}
+
+/* ============================================
+   Widget-Specific Styles
+   ============================================ */
+
+/* Fullscreen mode body adjustments */
+body.fullscreen {
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Ensure background colors use CSS variables */
+.bg-background {
+  background-color: hsl(var(--background));
+}
+
+/* Ensure text colors use CSS variables */
+.text-foreground {
+  color: hsl(var(--foreground));
+}
+
+/* Ensure muted colors use CSS variables */
+.text-muted-foreground {
+  color: hsl(var(--muted-foreground));
+}
+
+.bg-muted {
+  background-color: hsl(var(--muted));
+}
+
+/* Destructive color for errors */
+.text-destructive {
+  color: hsl(var(--destructive));
+}
+
+.border-destructive {
+  border-color: hsl(var(--destructive));
+}
+
+/* Primary color */
+.border-primary {
+  border-color: hsl(var(--primary));
+}
+
+/* ============================================
+   Skip Link (for keyboard navigation)
+   ============================================ */
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  z-index: 100;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0;
 }
