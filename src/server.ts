@@ -120,6 +120,48 @@ export class KrsViewer extends McpAgent<Env, unknown, Props> {
           idempotentHint: true,
           openWorldHint: true, // Calls external KRS API
         },
+        outputSchema: z.object({
+          name: z.string(),
+          krs: z.string(),
+          nip: z.string().nullable(),
+          regon: z.string().nullable(),
+          legalForm: z.string(),
+          address: z.object({
+            city: z.string(),
+            voivodeship: z.string().optional(),
+            street: z.string(),
+            building: z.string().optional(),
+            unit: z.string().nullable().optional(),
+            postalCode: z.string(),
+            country: z.string(),
+          }),
+          capital: z
+            .object({
+              value: z.string(),
+              currency: z.string(),
+            })
+            .nullable(),
+          representation: z
+            .object({
+              organName: z.string(),
+              method: z.string(),
+              members: z.array(
+                z.object({
+                  name: z.string(),
+                  function: z.string(),
+                })
+              ),
+            })
+            .optional(),
+          mainActivity: z.array(
+            z.object({
+              code: z.string(),
+              description: z.string(),
+            })
+          ),
+          registrationDate: z.string(),
+          lastUpdate: z.string(),
+        }),
         _meta: {
           ui: {
             resourceUri: RESOURCE_URI,
@@ -165,7 +207,10 @@ export class KrsViewer extends McpAgent<Env, unknown, Props> {
             content: [
               {
                 type: "text" as const,
-                text: formatCompanyAsText(companyData),
+                text:
+                  formatCompanyAsText(companyData) +
+                  "\n\nNext steps: Ask follow-up questions about this company's board, capital, or activities. " +
+                  "For full historical data, call view_company again with type 'pelny'.",
               },
             ],
             structuredContent: companyData as unknown as Record<

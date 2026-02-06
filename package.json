@@ -46,7 +46,7 @@
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^0.1.0",
     "@modelcontextprotocol/ext-apps": "^1.0.0",
-    "@modelcontextprotocol/sdk": "^1.25.1",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "@workos-inc/node": "^7.77.0",
     "agents": "^0.2.30",
     "clsx": "^2.1.1",
